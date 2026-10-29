@@ -78,8 +78,16 @@ load_project() {
 field_id()  { load_project; echo "$FIELDS_TSV" | awk -F'\t' -v n="$1" '$1==n{print $2; exit}'; }
 option_id() { load_project; echo "$FIELDS_TSV" | awk -F'\t' -v n="$1" -v o="$2" '$1==n && $3==o{print $4; exit}'; }
 
-# Project に足し、項目の ID を返す（既にあれば同じ ID が返る）
-add_to_project() { gh project item-add "$PROJECT" --owner "$OWNER" --url "$1" --format json --jq '.id'; }
+# Project に足し、項目の ID を返す。
+# 「Auto-add sub-issues to project」の Workflow が先に足していることがあるため、既にあればその項目の ID を返す
+add_to_project() {
+  local url="$1" id num
+  if id="$(gh project item-add "$PROJECT" --owner "$OWNER" --url "$url" --format json --jq '.id' 2>/dev/null)"; then echo "$id"; return 0; fi
+  num="${url##*/}"
+  gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){issue(number:$n){projectItems(first:20){nodes{id project{number}}}}}}' \
+    -f o="${REPO%%/*}" -f r="${REPO##*/}" -F n="$num" \
+    --jq ".data.repository.issue.projectItems.nodes[] | select(.project.number==$PROJECT) | .id"
+}
 
 set_number() { load_project; gh project item-edit --id "$1" --project-id "$PROJECT_ID" --field-id "$(field_id "$2")" --number "$3" >/dev/null; }
 set_date()   { load_project; gh project item-edit --id "$1" --project-id "$PROJECT_ID" --field-id "$(field_id "$2")" --date "$3" >/dev/null; }
