@@ -11,7 +11,9 @@
 
 | 見るところ | どこで | わかること |
 |---|---|---|
-| 3 段の親子と進み具合 | Project の「エピックの階層」ビュー、[#4](../../issues/4) | エピック → ストーリー → タスク。タスクが閉じると、ストーリーの進み具合が進む（#5 は 2/4） |
+| 3 段の親子と進み具合（WBS） | Project の「WBS」ビュー、[#4](../../issues/4) | インテント・エピック → ストーリー → タスクを木の形に並べる。タスクが閉じると、ストーリーの進み具合が進む（#5 は 2/4） |
+| Sprint ごとに何をやるか | Project の「今の Sprint」「次の Sprint」ビュー | その Sprint のストーリー・タスクと、担当・期限・Status を表で見る。日程の横棒（ロードマップ）は表示が重いため使わない |
+| Board は補助 | Project の「（補助）Full Backlog」「（補助）Sprint Planning」ビュー | 顧客も開発メンバーもカンバンに慣れていないため、主な画面は表にし、Board は Status を動かすのに慣れた人の補助にする |
 | タスクの Issue と PR が 1 対 1 | [#21](../../pull/21)・[#22](../../pull/22)・[#23](../../pull/23) | PR の本文の `Closes #<タスク>` でマージ時にタスクが閉じ、Status が Done になる。ブランチ名は閉じるタスクの番号（例：`feature/12-book-register-api`） |
 | レビュー中のタスク | [#24](../../pull/24)・[#14](../../issues/14) | PR が開いているタスクは Status が Review |
 | 依存と Blocked | [#18](../../issues/18)、[#8](../../issues/8) | `plan.md` の「先行タスク」が blocked by になる（機能をまたぐ `F02 T-2` ← `F01 T-1` も）。先行の Issue を閉じると Blocked が外れる |
@@ -78,7 +80,9 @@ src/                                     デモ用の仮のコード
 API では、ビューのグループ分けと Workflow を設定できない。必要なら Project の画面で行う。
 
 - 「インテントごと」ビュー：右上の View の設定 → **Group by** → 「インテント」
-- 「エピックの階層」ビュー：View の設定で **Show hierarchy** が有効になっていることを確かめる（新しいビューは既定で有効）
+- 「WBS」ビュー：View の設定で **Show hierarchy** が有効になっていることを確かめる（新しいビューは既定で有効）
+- Sprint を 1 つの表でまとめて見たいとき：表のビューで **Group by** → 「Sprint」
+- ビューの並び順：タブをドラッグして、WBS・今の Sprint・次の Sprint を前にし、（補助）の Board を後ろにする
 - Workflow：Project の「…」→ **Workflows** → 「Item closed」などを選び、**Edit** で Status を選んで **Save and turn on workflow**
 
 ## 7. 動かしてわかったこと

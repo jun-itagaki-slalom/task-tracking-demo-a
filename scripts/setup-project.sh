@@ -54,9 +54,15 @@ mkview() {
   gql -f query="mutation(\$v:ID!,\$f:String!){updateProjectV2View(input:{viewId:\$v,filter:\$f,configuration:{visibleFieldIds:$(ids "$@")}}){projectV2View{id}}}" -f v="$vid" -f f="$filter" --silent
   echo "ビュー：$name（$filter）"
 }
-mkview "エピックの階層" TABLE_LAYOUT "no:parent-issue label:type:epic" "Title" "Status" "Sub-issues progress" "Assignees" "Sprint" "Due date" "Labels"
-mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "インテント" "Status" "Parent issue" "Labels"
-mkview "Sprint Planning" BOARD_LAYOUT "label:type:user-story,type:enabler-story,type:task sprint:@current" "Title" "Assignees" "Sprint" "Estimate" "Priority" "Parent issue"
+# 主なビューはすべて表にする（顧客も開発メンバーも Board に慣れていないため）。ロードマップは表示が重いため作らない
+mkview "WBS" TABLE_LAYOUT "no:parent-issue" "Title" "Assignees" "Sprint" "Due date" "Sub-issues progress" "Status" "Labels"
+mkview "今の Sprint" TABLE_LAYOUT "sprint:@current" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
+mkview "次の Sprint" TABLE_LAYOUT "sprint:@next" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
 mkview "Daily Standup" TABLE_LAYOUT "no:parent-issue" "Title" "Assignees" "Status" "Sub-issues progress" "Due date"
+mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "インテント" "Status" "Parent issue" "Labels"
+# Board は補助（Status を動かすのに慣れた人向け）。最初からある View 1 は「（補助）Full Backlog」（Board）に名前を変える
+mkview "（補助）Sprint Planning" BOARD_LAYOUT "label:type:user-story,type:enabler-story,type:task sprint:@current" "Title" "Assignees" "Sprint" "Estimate" "Priority" "Parent issue"
+v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){nodes{id name}}}}}' -f p="$pid" --jq '.data.node.views.nodes[] | select(.name=="View 1") | .id')"
+[[ -n "$v1" ]] && gql -f query='mutation($v:ID!){updateProjectV2View(input:{viewId:$v,name:"（補助）Full Backlog",layout:BOARD_LAYOUT}){projectV2View{id}}}' -f v="$v1" --silent && echo "ビュー：（補助）Full Backlog"
 
 echo "終わり。scripts/config.sh の PROJECT を $pnum にしてください"
