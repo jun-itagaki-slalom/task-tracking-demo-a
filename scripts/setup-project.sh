@@ -65,7 +65,8 @@ mkview "WBS" TABLE_LAYOUT "no:parent-issue -label:type:intent" "Title" "Assignee
 mkview "今の Sprint" TABLE_LAYOUT "sprint:@current" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
 mkview "次の Sprint" TABLE_LAYOUT "sprint:@next" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
 mkview "Daily Standup" TABLE_LAYOUT "" "Title" "Assignees" "Status" "Sprint" "Due date" "Sub-issues progress" "Linked pull requests" "Labels"
-mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "インテント" "Status" "Parent issue" "Labels"
+# 「インテント」（依頼の一覧）と紛れないよう、依頼ごとの中身を見るビューは「インテント別の作業」と呼ぶ（Group by はインテント。画面で設定する）
+mkview "インテント別の作業" TABLE_LAYOUT "-label:type:intent" "Title" "インテント" "Status" "Parent issue" "Labels"
 # ロードマップは表示が重いため補助。表示する項目は設定できないため filter だけを入れる
 # 開始・終わりの項目（Sprint・Due date）、Group by、表のビューの Slice by は API で設定できないため、README の手順で画面から行う
 mkroad() { local v; v="$(gql -f query='mutation($p:ID!,$n:String!){createProjectV2View(input:{projectId:$p,name:$n,layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" -f n="$1" --jq '.data.createProjectV2View.projectV2View.id')"; gql -f query='mutation($v:ID!,$f:String!){updateProjectV2View(input:{viewId:$v,filter:$f}){projectV2View{id}}}' -f v="$v" -f f="$2" --silent; echo "ビュー：$1（$2）"; }
