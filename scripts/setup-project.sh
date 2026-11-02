@@ -56,7 +56,7 @@ mkview() {
   gql -f query="mutation(\$v:ID!,\$f:String!){updateProjectV2View(input:{viewId:\$v,filter:\$f,configuration:{visibleFieldIds:$(ids "$@")}}){projectV2View{id}}}" -f v="$vid" -f f="$filter" --silent
   echo "ビュー：$name（$filter）"
 }
-# 主なビューはすべて表にする（顧客も開発メンバーも Board に慣れていないため、Board は作らない）
+# 主なビューはすべて表にする（顧客も開発メンバーも Board に慣れていないため）。Board は Daily Standup の補助として 1 つだけ作る（最後）
 # インテント（依頼）とエピック（機能）は、意思決定者が見やすいように別のビューに分ける。Daily Standup だけは、全員で止まっているものを探すため同じ段に並べる
 # 最初からある View 1 は「インテント」の表にする
 v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){nodes{id name}}}}}' -f p="$pid" --jq '.data.node.views.nodes[] | select(.name=="View 1") | .id')"
@@ -71,5 +71,7 @@ mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "イン
 mkroad() { local v; v="$(gql -f query='mutation($p:ID!,$n:String!){createProjectV2View(input:{projectId:$p,name:$n,layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" -f n="$1" --jq '.data.createProjectV2View.projectV2View.id')"; gql -f query='mutation($v:ID!,$f:String!){updateProjectV2View(input:{viewId:$v,filter:$f}){projectV2View{id}}}' -f v="$v" -f f="$2" --silent; echo "ビュー：$1（$2）"; }
 mkroad "（補助）エピックのロードマップ" "-label:type:intent"
 mkroad "（補助）インテントのロードマップ" "label:type:intent"
+# Daily Standup の補助のカンバン。Daily Standup と同じ Issue を Status の列で並べる（依存で止まっている Issue に Blocked の印が出る）
+mkview "Daily Standup（Kanban）" BOARD_LAYOUT "" "Title" "Assignees" "Status" "Sprint" "Due date" "Labels"
 
 echo "終わり。scripts/config.sh の PROJECT を $pnum にしてください"
