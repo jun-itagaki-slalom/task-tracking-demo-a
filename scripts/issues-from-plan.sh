@@ -73,14 +73,14 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   pnum="${made[$parent]:-}"; [[ -z "$pnum" ]] && pnum="$(story_number "$parent")"
   [[ -z "$pnum" ]] && { echo "親のストーリー $parent の Issue がありません（$key を飛ばす）" >&2; continue; }
 
-  if [[ "$(issue_state "$pnum")" == "closed" ]]; then
-    gh issue reopen "$pnum" -R "$REPO" -c "インテント #$intent の計画（$pid）で Task を足すため、開き直しました。計画：$plan_url" >/dev/null
-    item="$(add_to_project "$(issue_url "$pnum")")"; set_select "$item" "Status" "Ready"
-    echo "開き直した：#$pnum $parent（Task を足すため）"
-  fi
-
   num="$(find_in "$(sub_issues "$pnum")" "$key")"
   if [[ -z "$num" ]]; then
+    # 親のストーリーが閉じていて、新しく Task を足すときだけ開き直す（既にある Task だけなら開き直さない）
+    if [[ "$(issue_state "$pnum")" == "closed" ]]; then
+      gh issue reopen "$pnum" -R "$REPO" -c "インテント #$intent の計画（$pid）で Task を足すため、開き直しました。計画：$plan_url" >/dev/null
+      item="$(add_to_project "$(issue_url "$pnum")")"; set_select "$item" "Status" "Ready"
+      echo "開き直した：#$pnum $parent（Task を足すため）"
+    fi
     ac="$(grep -E "^- \*\*AC-[0-9]+\*\*（[^）]*$tid[・）]" "$plan" | tr -d '\r' | sed 's/^- /- [ ] /' || true)"
     body="### やること
 $ttext
