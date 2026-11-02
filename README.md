@@ -13,7 +13,7 @@
 |---|---|---|
 | 3 段の親子と進み具合（WBS） | Project の「WBS」ビュー、[#4](../../issues/4) | インテント・エピック → ストーリー → タスクを木の形に並べる。タスクが閉じると、ストーリーの進み具合が進む（#5 は 2/4） |
 | Sprint ごとに何をやるか | Project の「今の Sprint」「次の Sprint」ビュー | その Sprint のストーリー・タスクと、担当・期限・Status を表で見る。横の絞り込みパネル（Slice by）で担当者を選ぶと、その人の作業だけを出せる |
-| Board とロードマップは補助 | Project の「（補助）Full Backlog」「（補助）Sprint Planning」「（補助）エピックごとのロードマップ」ビュー | 顧客も開発メンバーもカンバンに慣れていないため、主な画面は表にし、Board は Status を動かすのに慣れた人の補助にする。ロードマップは表示が重いため主な画面にせず、ストーリーを Sprint の期間で並べてエピックごとの大まかな日程を見る補助にする |
+| Board とロードマップは補助 | Project の「（補助）Full Backlog」「（補助）Sprint Planning」「（補助）エピックごとのロードマップ」ビュー | 顧客も開発メンバーもカンバンに慣れていないため、主な画面は表にし、Board は Status を動かすのに慣れた人の補助にする。ロードマップは表示が重いため主な画面にせず、すべての Issue を Sprint の初日から期限（Due date）までの横棒で並べ、エピックごとの大まかな日程を見る補助にする |
 | タスクの Issue と PR が 1 対 1 | [#21](../../pull/21)・[#22](../../pull/22)・[#23](../../pull/23) | PR の本文の `Closes #<タスク>` でマージ時にタスクが閉じ、Status が Done になる。ブランチ名は閉じるタスクの番号（例：`feature/12-book-register-api`） |
 | レビュー中のタスク | [#24](../../pull/24)・[#14](../../issues/14) | PR が開いているタスクは Status が Review |
 | 依存と Blocked | [#18](../../issues/18)、[#8](../../issues/8) | `plan.md` の「先行タスク」が blocked by になる（機能をまたぐ `F02 T-2` ← `F01 T-1` も）。先行の Issue を閉じると Blocked が外れる |
@@ -48,7 +48,7 @@ src/                                     デモ用の仮のコード
 | 1 | `requirements.md` の PR のマージの後に、エピックとストーリーの Issue を起こす | PR [#3](../../pull/3) → `issues-from-requirements.sh` で #4〜#10 |
 | 2 | 技術の設計と `plan.md` を 1 つの PR にしてレビュー・マージ | PR [#11](../../pull/11) |
 | 3 | `plan.md` のマージの後に、タスクの Issue を起こし、依存を付ける | `issues-from-plan.sh` で #12〜#20 |
-| 5 | Sprint Planning で値を入れる（人） | ストーリーに Sprint・Priority・Estimate、タスクに担当・Sprint・期限（デモ用の仮の値） |
+| 5 | Sprint Planning で値を入れる（人） | Sprint は 2026-11-01 から 1 週間ずつ（Sprint 1〜4）。すべての Issue に Sprint と期限を入れ、ストーリーには Priority・Estimate、タスクには担当も入れた（デモ用の仮の値。エピック・インテントの Sprint は始まる Sprint） |
 | 6・7 | タスクごとに PR を出し、`Closes #<タスク>` でマージ | PR [#21](../../pull/21)〜[#23](../../pull/23)（マージ済み）、[#24](../../pull/24)（レビュー中） |
 | 8 | タスクがすべて閉じ、検証で受け入れ基準を満たしたら、ストーリーを人が閉じる | `check-close.sh` で候補を出し、#5・#16 を閉じた（デモでは代わりに閉じた） |
 | 変更 | 2 つ目のインテントで要件を直し、変更の計画からタスクを起こす | [#25](../../issues/25)、PR [#26](../../pull/26)〜[#28](../../pull/28) → #5 を開き直し、#29・#30 |
@@ -81,7 +81,7 @@ API では、ビューのグループ分け・絞り込みパネル・ロード�
 
 - 「インテントごと」ビュー：右上の View の設定 → **Group by** → 「インテント」
 - 絞り込みパネル：「WBS」ビューは View の設定 → **Slice by** → 「Sprint」、「今の Sprint」「次の Sprint」ビューは **Slice by** → 「Assignees」
-- 「（補助）エピックごとのロードマップ」ビュー：右上の **Date fields** で Start date・Target date の両方に「Sprint」を選ぶ → View の設定 → **Group by** → 「Parent issue」（ストーリーの親＝エピック）
+- 「（補助）エピックごとのロードマップ」ビュー：右上の **Date fields** で Start date に「Sprint」、Target date に「Due date」を選ぶ → View の設定 → **Group by** → 「Parent issue」（ストーリーはエピックの下、タスクはストーリーの下にまとまる）
 - 「WBS」ビュー：View の設定で **Show hierarchy** が有効になっていることを確かめる（新しいビューは既定で有効）
 - Sprint を 1 つの表でまとめて見たいとき：表のビューで **Group by** → 「Sprint」
 - ビューの並び順：タブをドラッグして、WBS・今の Sprint・次の Sprint を前にし、（補助）の Board を後ろにする

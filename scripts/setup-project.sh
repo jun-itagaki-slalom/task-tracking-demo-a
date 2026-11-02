@@ -32,7 +32,9 @@ mkfield "Priority"  SINGLE_SELECT ',singleSelectOptions:[{name:"高",color:RED,d
 mkfield "Estimate"  NUMBER ''
 mkfield "Due date"  DATE ''
 mkfield "インテント" NUMBER ''
-mkfield "Sprint"    ITERATION ",iterationConfiguration:{startDate:\"$SPRINT_START\",duration:7,iterations:[{title:\"Sprint 1\",startDate:\"$SPRINT_START\",duration:7},{title:\"Sprint 2\",startDate:\"$SPRINT2_START\",duration:7}]}"
+# Sprint は SPRINT_START から 1 週間ずつ、SPRINT_COUNT 個作る
+its=""; for ((i=0; i<SPRINT_COUNT; i++)); do d="$(date -d "$SPRINT_START + $((i*7)) days" +%F)"; its="$its{title:\"Sprint $((i+1))\",startDate:\"$d\",duration:7},"; done
+mkfield "Sprint"    ITERATION ",iterationConfiguration:{startDate:\"$SPRINT_START\",duration:7,iterations:[${its%,}]}"
 
 # Status の選択肢をこのリポジトリの運用（Backlog / Ready / In progress / Review / Done）にそろえる
 status_id="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{field(name:"Status"){... on ProjectV2SingleSelectField{id}}}}}' -f p="$pid" --jq '.data.node.field.id')"
@@ -67,6 +69,6 @@ v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){n
 # ロードマップは表示が重いため補助。ストーリーだけを出す。ロードマップは表示する項目を設定できないため filter だけを入れる
 # 開始・終わりの項目（Sprint）と Group by（Parent issue）、表のビューの Slice by は API で設定できないため、README の手順で画面から行う
 vr="$(gql -f query='mutation($p:ID!){createProjectV2View(input:{projectId:$p,name:"（補助）エピックごとのロードマップ",layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" --jq '.data.createProjectV2View.projectV2View.id')"
-gql -f query='mutation($v:ID!){updateProjectV2View(input:{viewId:$v,filter:"label:type:user-story,type:enabler-story"}){projectV2View{id}}}' -f v="$vr" --silent && echo "ビュー：（補助）エピックごとのロードマップ"
+echo "ビュー：（補助）エピックごとのロードマップ（filter なし。すべての Issue を Sprint の初日から期限まで並べる）"
 
 echo "終わり。scripts/config.sh の PROJECT を $pnum にしてください"
