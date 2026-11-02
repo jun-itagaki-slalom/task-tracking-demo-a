@@ -64,5 +64,9 @@ mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "イン
 mkview "（補助）Sprint Planning" BOARD_LAYOUT "label:type:user-story,type:enabler-story,type:task sprint:@current" "Title" "Assignees" "Sprint" "Estimate" "Priority" "Parent issue"
 v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){nodes{id name}}}}}' -f p="$pid" --jq '.data.node.views.nodes[] | select(.name=="View 1") | .id')"
 [[ -n "$v1" ]] && gql -f query='mutation($v:ID!){updateProjectV2View(input:{viewId:$v,name:"（補助）Full Backlog",layout:BOARD_LAYOUT}){projectV2View{id}}}' -f v="$v1" --silent && echo "ビュー：（補助）Full Backlog"
+# ロードマップは表示が重いため補助。ストーリーだけを出す。ロードマップは表示する項目を設定できないため filter だけを入れる
+# 開始・終わりの項目（Sprint）と Group by（Parent issue）、表のビューの Slice by は API で設定できないため、README の手順で画面から行う
+vr="$(gql -f query='mutation($p:ID!){createProjectV2View(input:{projectId:$p,name:"（補助）エピックごとのロードマップ",layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" --jq '.data.createProjectV2View.projectV2View.id')"
+gql -f query='mutation($v:ID!){updateProjectV2View(input:{viewId:$v,filter:"label:type:user-story,type:enabler-story"}){projectV2View{id}}}' -f v="$vr" --silent && echo "ビュー：（補助）エピックごとのロードマップ"
 
 echo "終わり。scripts/config.sh の PROJECT を $pnum にしてください"
