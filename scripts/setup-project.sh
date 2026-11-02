@@ -56,19 +56,20 @@ mkview() {
   gql -f query="mutation(\$v:ID!,\$f:String!){updateProjectV2View(input:{viewId:\$v,filter:\$f,configuration:{visibleFieldIds:$(ids "$@")}}){projectV2View{id}}}" -f v="$vid" -f f="$filter" --silent
   echo "ビュー：$name（$filter）"
 }
-# 主なビューはすべて表にする（顧客も開発メンバーも Board に慣れていないため）。ロードマップは表示が重いため作らない
-mkview "WBS" TABLE_LAYOUT "no:parent-issue" "Title" "Assignees" "Sprint" "Due date" "Sub-issues progress" "Status" "Labels"
+# 主なビューはすべて表にする（顧客も開発メンバーも Board に慣れていないため、Board は作らない）
+# インテント（依頼）とエピック（機能）は、意思決定者が見やすいように別のビューに分ける。Daily Standup だけは、全員で止まっているものを探すため同じ段に並べる
+# 最初からある View 1 は「インテント」の表にする
+v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){nodes{id name}}}}}' -f p="$pid" --jq '.data.node.views.nodes[] | select(.name=="View 1") | .id')"
+[[ -n "$v1" ]] && gql -f query="mutation(\$v:ID!){updateProjectV2View(input:{viewId:\$v,name:\"インテント\",layout:TABLE_LAYOUT,filter:\"label:type:intent\",configuration:{visibleFieldIds:$(ids Title Status Sprint "Due date" Assignees "Sub-issues progress")}}){projectV2View{id}}}" -f v="$v1" --silent && echo "ビュー：インテント（label:type:intent）"
+mkview "WBS" TABLE_LAYOUT "no:parent-issue -label:type:intent" "Title" "Assignees" "Sprint" "Due date" "Sub-issues progress" "Status" "Labels"
 mkview "今の Sprint" TABLE_LAYOUT "sprint:@current" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
 mkview "次の Sprint" TABLE_LAYOUT "sprint:@next" "Title" "Assignees" "Status" "Due date" "Parent issue" "Labels"
-mkview "Daily Standup" TABLE_LAYOUT "no:parent-issue" "Title" "Assignees" "Status" "Sub-issues progress" "Due date"
+mkview "Daily Standup" TABLE_LAYOUT "" "Title" "Assignees" "Status" "Sprint" "Due date" "Sub-issues progress" "Linked pull requests" "Labels"
 mkview "インテントごと" TABLE_LAYOUT "-label:type:intent" "Title" "インテント" "Status" "Parent issue" "Labels"
-# Board は補助（Status を動かすのに慣れた人向け）。最初からある View 1 は「（補助）Full Backlog」（Board）に名前を変える
-mkview "（補助）Sprint Planning" BOARD_LAYOUT "label:type:user-story,type:enabler-story,type:task sprint:@current" "Title" "Assignees" "Sprint" "Estimate" "Priority" "Parent issue"
-v1="$(gql -f query='query($p:ID!){node(id:$p){... on ProjectV2{views(first:20){nodes{id name}}}}}' -f p="$pid" --jq '.data.node.views.nodes[] | select(.name=="View 1") | .id')"
-[[ -n "$v1" ]] && gql -f query='mutation($v:ID!){updateProjectV2View(input:{viewId:$v,name:"（補助）Full Backlog",layout:BOARD_LAYOUT}){projectV2View{id}}}' -f v="$v1" --silent && echo "ビュー：（補助）Full Backlog"
-# ロードマップは表示が重いため補助。ストーリーだけを出す。ロードマップは表示する項目を設定できないため filter だけを入れる
-# 開始・終わりの項目（Sprint）と Group by（Parent issue）、表のビューの Slice by は API で設定できないため、README の手順で画面から行う
-vr="$(gql -f query='mutation($p:ID!){createProjectV2View(input:{projectId:$p,name:"（補助）エピックごとのロードマップ",layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" --jq '.data.createProjectV2View.projectV2View.id')"
-echo "ビュー：（補助）エピックごとのロードマップ（filter なし。すべての Issue を Sprint の初日から期限まで並べる）"
+# ロードマップは表示が重いため補助。表示する項目は設定できないため filter だけを入れる
+# 開始・終わりの項目（Sprint・Due date）、Group by、表のビューの Slice by は API で設定できないため、README の手順で画面から行う
+mkroad() { local v; v="$(gql -f query='mutation($p:ID!,$n:String!){createProjectV2View(input:{projectId:$p,name:$n,layout:ROADMAP_LAYOUT}){projectV2View{id}}}' -f p="$pid" -f n="$1" --jq '.data.createProjectV2View.projectV2View.id')"; gql -f query='mutation($v:ID!,$f:String!){updateProjectV2View(input:{viewId:$v,filter:$f}){projectV2View{id}}}' -f v="$v" -f f="$2" --silent; echo "ビュー：$1（$2）"; }
+mkroad "（補助）エピックのロードマップ" "-label:type:intent"
+mkroad "（補助）インテントのロードマップ" "label:type:intent"
 
 echo "終わり。scripts/config.sh の PROJECT を $pnum にしてください"
