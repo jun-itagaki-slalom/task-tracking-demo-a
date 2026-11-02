@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # requirements.md から、エピックとユーザーストーリーの Issue を起こす（推奨案 A の流れの 1）。
 # 使い方：scripts/issues-from-requirements.sh <機能のフォルダ> <インテントの Issue の番号>
-#   例：scripts/issues-from-requirements.sh specs/library/features/F01-book-register 1
+#   例：scripts/issues-from-requirements.sh specs/library/features/E01-book-register 1
 # - requirements.md の PR のマージの後に動かす
 # - 既にある Issue は、エピックの sub-issue をストーリーの番号で照らして飛ばす（何度動かしてもよい）
 # - 最後に、ずれ（Markdown にだけある／Issue にだけある／題が違う）の一覧を出す
@@ -9,7 +9,7 @@ source "$(dirname "$0")/lib.sh"
 
 dir="${1:?機能のフォルダを指定してください}"; intent="${2:?インテントの Issue の番号を指定してください}"
 req="$dir/requirements.md"
-fid="$(meta_value "$req" "機能 ID")"
+fid="$(meta_value "$req" "エピック ID")"
 fname="$(meta_value "$req" "機能名")"
 req_url="$(blob_url "$req")"
 

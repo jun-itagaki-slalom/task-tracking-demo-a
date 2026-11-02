@@ -4,7 +4,7 @@
 |---|---|
 | インテント ID | I002 |
 | インテントの Issue | #25 |
-| 始める局面 | 要件定義（F01 の要件を変える） |
+| 始める局面 | 要件定義（E01 の要件を変える） |
 | 承認 | PdM（PR で承認） |
 
 ## なぜ（Why）
@@ -13,15 +13,15 @@
 
 ## 何を基準にしたか（Baseline）
 
-- F01 の要件（`specs/library/features/F01-book-register/requirements.md`）。US-1 は I001 で完了済み
+- E01 の要件（`specs/library/features/E01-book-register/requirements.md`）。US-1 は I001 で完了済み
 
 ## 何をどう変えるか（Delta）
 
-- 変更：F01 US-1 の受入シナリオに「同じ ISBN の本は登録できない」を足す
+- 変更：E01 US-1 の受入シナリオに「同じ ISBN の本は登録できない」を足す
 
 ## 影響する機能（Impact）
 
-- F01（本の登録）。F02（貸し出し）は本の ID で本を見るため影響しない
+- E01（本の登録）。E02（貸し出し）は本の ID で本を見るため影響しない
 
 ## 変えない振る舞い
 

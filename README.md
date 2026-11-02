@@ -16,10 +16,10 @@
 | Board とロードマップは補助 | Project の「（補助）Full Backlog」「（補助）Sprint Planning」「（補助）エピックごとのロードマップ」ビュー | 顧客も開発メンバーもカンバンに慣れていないため、主な画面は表にし、Board は Status を動かすのに慣れた人の補助にする。ロードマップは表示が重いため主な画面にせず、すべての Issue を Sprint の初日から期限（Due date）までの横棒で並べ、エピックごとの大まかな日程を見る補助にする |
 | タスクの Issue と PR が 1 対 1 | [#21](../../pull/21)・[#22](../../pull/22)・[#23](../../pull/23) | PR の本文の `Closes #<タスク>` でマージ時にタスクが閉じ、Status が Done になる。ブランチ名は閉じるタスクの番号（例：`feature/12-book-register-api`） |
 | レビュー中のタスク | [#24](../../pull/24)・[#14](../../issues/14) | PR が開いているタスクは Status が Review |
-| 依存と Blocked | [#18](../../issues/18)、[#8](../../issues/8) | `plan.md` の「先行タスク」が blocked by になる（機能をまたぐ `F02 T-2` ← `F01 T-1` も）。先行の Issue を閉じると Blocked が外れる |
+| 依存と Blocked | [#18](../../issues/18)、[#8](../../issues/8) | `plan.md` の「先行タスク」が blocked by になる（機能をまたぐ `E02 T-2` ← `E01 T-1` も）。先行の Issue を閉じると Blocked が外れる |
 | イネーブラーストーリー | [#16](../../issues/16) | 共通の基盤（利用者を見分ける仕組み）を 1 つのストーリーにし、使う側の 3 ストーリーを blocked by にする |
 | インテントごとの見え方 | Project の「インテントごと」ビュー | 項目「インテント」にインテントの Issue の番号（1 か 25）が入る。親子・依存は使わない |
-| 変更のインテントで、閉じたストーリーを開き直す | [#25](../../issues/25)、[#5](../../issues/5) | I002 の計画で、完了済みの F01 US-1 を開き直し、その下に `I002 T-1`・`I002 T-2` を足した |
+| 変更のインテントで、閉じたストーリーを開き直す | [#25](../../issues/25)、[#5](../../issues/5) | I002 の計画で、完了済みの E01 US-1 を開き直し、その下に `I002 T-1`・`I002 T-2` を足した |
 | 上流の文書の PR | [#2](../../pull/2)・[#3](../../pull/3)・[#11](../../pull/11)・[#26](../../pull/26)〜[#28](../../pull/28) | 閉じる Issue がないため `Refs #<インテント>`。ブランチ名はインテントの番号（例：`docs/1-design-and-plan`） |
 
 ## 2. フォルダ
@@ -30,8 +30,8 @@ intents/
   I002-isbn-duplicate/intent.md, plan.md  インテントの記録と、変更の計画（記録）
 specs/library/
   architecture.md                        技術の設計（plan.md と同じ PR）
-  features/F01-book-register/requirements.md, plan.md   機能の要件（正本）と、初回の開発の計画（記録）
-  features/F02-lending/requirements.md, plan.md
+  features/E01-book-register/requirements.md, plan.md   機能の要件（正本）と、初回の開発の計画（記録）
+  features/E02-lending/requirements.md, plan.md
 scripts/                                 Markdown から Issue を起こす、Status を動かすなどのスクリプト
 src/                                     デモ用の仮のコード
 ```

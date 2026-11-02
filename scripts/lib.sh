@@ -8,7 +8,7 @@ source "$LIB_DIR/config.sh"
 
 trim() { local s="$1"; s="${s#"${s%%[![:space:]]*}"}"; s="${s%"${s##*[![:space:]]}"}"; printf '%s' "$s"; }
 
-# 表の「| 項目 | 内容 |」から値を取る。例：meta_value plan.md "機能 ID" → F01
+# 表の「| 項目 | 内容 |」から値を取る。例：meta_value plan.md "エピック ID" → E01
 meta_value() {
   local file="$1" key="$2" line
   line="$(grep -m1 "^| $key |" "$file" | tr -d '\r' || true)"
@@ -53,7 +53,7 @@ find_in() {
   return 0
 }
 
-# 機能 ID のエピックの番号（なければ空）
+# エピック ID のエピックの番号（なければ空）
 find_epic() { find_in "$(list_by_label type:epic)" "$1"; }
 
 # 子（番号）を親（番号）の sub-issue にする

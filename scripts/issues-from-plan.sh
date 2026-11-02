@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 # plan.md から、イネーブラーストーリーと Task の Issue を起こし、依存（blocked by）を付ける（推奨案 A の流れの 3）。
 # 使い方：scripts/issues-from-plan.sh <plan.md> <インテントの Issue の番号>
-#   例：scripts/issues-from-plan.sh specs/library/features/F02-lending/plan.md 1
+#   例：scripts/issues-from-plan.sh specs/library/features/E02-lending/plan.md 1
 #       scripts/issues-from-plan.sh intents/I002-isbn-duplicate/plan.md 12
 # - plan.md（技術の設計と同じ PR）のマージの後に動かす
-# - Task のタイトルは「<計画の ID> T-n: <タスク>」（例：F01 T-1、I002 T-1）。機能をまたいで番号が重ならないようにするため
+# - Task のタイトルは「<計画の ID> T-n: <タスク>」（例：E01 T-1、I002 T-1）。機能をまたいで番号が重ならないようにするため
 # - 既にある Issue は、親のストーリーの sub-issue を番号で照らして飛ばす（何度動かしてもよい）
 # - 親のストーリーが閉じていたら、開き直してコメントを残す（変更のインテントで Task を足すとき）
 source "$(dirname "$0")/lib.sh"
 
 plan="${1:?plan.md を指定してください}"; intent="${2:?インテントの Issue の番号を指定してください}"
-fid="$(meta_value "$plan" "機能 ID")"
+fid="$(meta_value "$plan" "エピック ID")"
 pid="$(meta_value "$plan" "計画の ID")"; pid="${pid%%（*}"
 plan_url="$(blob_url "$plan")"
 echo "== 計画 $pid（$plan）"
 
 epic_of() { local e; e="$(find_epic "$1")"; [[ -z "$e" ]] && { echo "エピック $1 がありません。先に issues-from-requirements.sh を動かしてください" >&2; exit 1; }; echo "$e"; }
 
-# 「US-1」「EN-1」→「F02 US-1」。既に機能 ID が付いていればそのまま
-qualify() { local s; s="$(trim "$1")"; [[ "$s" == F[0-9]*\ * ]] && echo "$s" || echo "$fid $s"; }
+# 「US-1」「EN-1」→「E02 US-1」。既にエピック ID（E と番号）が付いていればそのまま
+qualify() { local s; s="$(trim "$1")"; [[ "$s" == E[0-9]*\ * ]] && echo "$s" || echo "$fid $s"; }
 
-# 「F02 US-1」→ Issue の番号（エピックの sub-issue から探す）
+# 「E02 US-1」→ Issue の番号（エピックの sub-issue から探す）
 story_number() {
   local key="$1" f="${1%% *}"
   find_in "$(sub_issues "$(epic_of "$f")")" "$key"
